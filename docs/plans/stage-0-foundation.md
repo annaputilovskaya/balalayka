@@ -398,7 +398,7 @@ poetry run mypy app
 
 Ожидается: все тесты PASS, Ruff и mypy без ошибок.
 
-- [ ] **Step 9: Коммиты**
+- [x] **Step 9: Коммиты**
 
 ```bash
 git add .gitattributes .gitignore backend/pyproject.toml backend/poetry.lock backend/Makefile
