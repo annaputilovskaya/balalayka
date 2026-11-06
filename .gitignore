@@ -41,6 +41,7 @@ Thumbs.db
 .idea/
 .vscode/
 /poetry.toml
+/backend/poetry.toml
 
 # AI-docs
 ai-docs/

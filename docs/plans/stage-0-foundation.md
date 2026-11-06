@@ -150,7 +150,7 @@ git commit -m "docs: start foundation stage and add implementation plan"
 - Produces: `app/__init__.py` реэкспортирует `create_app`.
 - Produces: `GET /healthz -> 200 {"status": "ok"}`.
 
-- [ ] **Step 1: Перенести Poetry-конфиг и настроить backend**
+- [x] **Step 1: Перенести Poetry-конфиг и настроить backend**
 
 `pyproject.toml` и `poetry.lock` отслеживаются Git, поэтому переносятся через `git mv`. `poetry.toml` в `.gitignore` (`/poetry.toml`), поэтому `git mv` для него невозможен: используйте `Move-Item` в PowerShell или `mv` в POSIX-оболочке.
 
@@ -181,7 +181,7 @@ mv poetry.toml backend/poetry.toml
 - добавить `[tool.mypy]` с `python_version = "3.12"`, `disallow_untyped_defs = true`, `warn_unused_ignores = true`;
 - добавить `[tool.pytest.ini_options]` с `asyncio_mode = "auto"`, `testpaths = ["tests"]`.
 
-- [ ] **Step 2: Добавить зависимости**
+- [x] **Step 2: Добавить зависимости**
 
 ```bash
 cd backend
@@ -194,7 +194,7 @@ poetry install
 
 `poetry config --local` создаёт игнорируемый `backend/poetry.toml`. Корневой `.venv` после переноса конфига считается stale: не используйте его для backend-команд. После проверки его можно удалить вручную (`Remove-Item -Recurse -Force .venv` в PowerShell или `rm -rf .venv` в POSIX).
 
-- [ ] **Step 3: Написать падающие тесты конфигурации и health**
+- [x] **Step 3: Написать падающие тесты конфигурации и health**
 
 `backend/tests/conftest.py`:
 
@@ -317,7 +317,7 @@ async def test_unsafe_request_id_is_replaced():
     assert len(response.headers["X-Request-ID"]) == 36
 ```
 
-- [ ] **Step 4: Запустить тесты и убедиться, что они падают**
+- [x] **Step 4: Запустить тесты и убедиться, что они падают**
 
 ```bash
 cd backend
@@ -326,7 +326,7 @@ poetry run pytest tests/unit/test_config.py tests/unit/test_errors.py tests/inte
 
 Ожидается: `ModuleNotFoundError` или `ImportError` для `app.core.config`.
 
-- [ ] **Step 5: Реализовать `Settings` и `get_settings()`**
+- [x] **Step 5: Реализовать `Settings` и `get_settings()`**
 
 `backend/app/core/config.py` должен:
 
@@ -335,7 +335,7 @@ poetry run pytest tests/unit/test_config.py tests/unit/test_errors.py tests/inte
 - вычислять `templates_dir` и `static_dir` от `Path(__file__).resolve().parents[3] / "frontend"`;
 - кэшировать настройки через `@lru_cache`.
 
-- [ ] **Step 6: Реализовать ошибки, request ID и JSON-логи**
+- [x] **Step 6: Реализовать ошибки, request ID и JSON-логи**
 
 `backend/app/core/errors.py`:
 
@@ -368,7 +368,7 @@ poetry run pytest tests/unit/test_config.py tests/unit/test_errors.py tests/inte
 
 `GET /healthz` возвращает `{"status": "ok"}`.
 
-- [ ] **Step 7: Добавить `.gitattributes` и `Makefile`**
+- [x] **Step 7: Добавить `.gitattributes` и `Makefile`**
 
 `.gitattributes`:
 
@@ -386,7 +386,7 @@ check:
 	poetry run pytest
 ```
 
-- [ ] **Step 8: Запустить тесты, линтеры и mypy**
+- [x] **Step 8: Запустить тесты, линтеры и mypy**
 
 ```bash
 cd backend
