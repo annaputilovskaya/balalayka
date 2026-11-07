@@ -658,7 +658,7 @@ git commit -m "feat: add readiness checks and initial migration"
 - Produces: `GET /static/css/app.css -> 200 text/css`.
 - Produces: `create_app()` монтирует `StaticFiles` по `/static`; шаблоны отдаёт `get_templates()` из `app.web.templating`.
 
-- [ ] **Step 1: Добавить Jinja2 и создать frontend-конфиг**
+- [x] **Step 1: Добавить Jinja2 и создать frontend-конфиг**
 
 ```bash
 cd backend
@@ -698,7 +698,7 @@ module.exports = {
 @tailwind utilities;
 ```
 
-- [ ] **Step 2: Собрать CSS**
+- [x] **Step 2: Собрать CSS**
 
 ```bash
 cd frontend
@@ -708,7 +708,7 @@ npm run build:css
 
 Ожидается: создан `frontend/static/css/app.css`, `package-lock.json` закоммичен вместе с проектом.
 
-- [ ] **Step 3: Написать падающий тест главной**
+- [x] **Step 3: Написать падающий тест главной**
 
 `backend/tests/integration/test_home.py`:
 
@@ -739,7 +739,7 @@ async def test_compiled_css_is_served():
     assert "text/css" in response.headers["content-type"]
 ```
 
-- [ ] **Step 4: Запустить тест и убедиться, что он падает**
+- [x] **Step 4: Запустить тест и убедиться, что он падает**
 
 ```bash
 cd backend
@@ -748,7 +748,7 @@ poetry run pytest tests/integration/test_home.py -v
 
 Ожидается: `404` для `/`.
 
-- [ ] **Step 5: Реализовать шаблоны и маршрут**
+- [x] **Step 5: Реализовать шаблоны и маршрут**
 
 `backend/app/web/templating.py`:
 
@@ -777,7 +777,7 @@ poetry run pytest tests/integration/test_home.py -v
 - монтирует `StaticFiles(directory=str(settings.static_dir))` по `/static`;
 - подключает web-router.
 
-- [ ] **Step 6: Запустить тесты, проверить сборку**
+- [x] **Step 6: Запустить тесты, проверить сборку**
 
 ```bash
 cd backend
@@ -788,7 +788,7 @@ npm run build:css
 
 Ожидается: тесты PASS, сборка CSS завершается без ошибок.
 
-- [ ] **Step 7: Коммит**
+- [x] **Step 7: Коммит**
 
 ```bash
 git add frontend backend/app backend/tests
