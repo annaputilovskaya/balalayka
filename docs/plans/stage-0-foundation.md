@@ -431,7 +431,7 @@ git commit -m "feat: add backend skeleton, errors and health endpoint"
 - Produces: `GET /readyz -> 200 {"status": "ok", "checks": {"postgres": "ok", "redis": "ok"}}`.
 - Produces: `GET /readyz -> 503 {"status": "degraded", "checks": {"postgres": "error", "redis": "ok"}}` при отказе зависимости.
 
-- [ ] **Step 1: Добавить зависимости**
+- [x] **Step 1: Добавить зависимости**
 
 ```bash
 cd backend
@@ -439,7 +439,7 @@ poetry add "sqlalchemy[asyncio]>=2.0.35,<2.1" "asyncpg>=0.29,<1.0" "alembic>=1.1
 poetry add --group dev "testcontainers[postgres]>=4.8,<5.0" "psycopg2-binary>=2.9,<3.0"
 ```
 
-- [ ] **Step 2: Написать падающие тесты readiness**
+- [x] **Step 2: Написать падающие тесты readiness**
 
 `backend/tests/unit/test_readiness.py`:
 
@@ -508,7 +508,7 @@ async def test_readyz_reports_redis_failure(monkeypatch):
     assert "redis down" not in response.text
 ```
 
-- [ ] **Step 3: Написать падающий тест миграции**
+- [x] **Step 3: Написать падающий тест миграции**
 
 `backend/tests/integration/test_migrations.py`:
 
@@ -552,7 +552,7 @@ async def _extension_exists(url: str) -> bool:
         await connection.close()
 ```
 
-- [ ] **Step 4: Запустить тесты и убедиться, что они падают**
+- [x] **Step 4: Запустить тесты и убедиться, что они падают**
 
 ```bash
 cd backend
@@ -561,7 +561,7 @@ poetry run pytest tests/unit/test_readiness.py tests/integration/test_migrations
 
 Ожидается: `/readyz` возвращает 404, `alembic.ini` отсутствует.
 
-- [ ] **Step 5: Реализовать `db.py` и `redis.py`**
+- [x] **Step 5: Реализовать `db.py` и `redis.py`**
 
 `db.py`:
 
@@ -576,7 +576,7 @@ poetry run pytest tests/unit/test_readiness.py tests/integration/test_migrations
 - `from_url(settings.redis_url, decode_responses=True, socket_connect_timeout=2, socket_timeout=2)`;
 - `check_redis()` выполняет `PING` и поднимает `RuntimeError` при неуспехе.
 
-- [ ] **Step 6: Реализовать `/readyz`**
+- [x] **Step 6: Реализовать `/readyz`**
 
 `backend/app/api/health.py`:
 
@@ -585,7 +585,7 @@ poetry run pytest tests/unit/test_readiness.py tests/integration/test_migrations
 - формирует `checks` и `status`;
 - возвращает `JSONResponse` с `200` или `503`.
 
-- [ ] **Step 7: Инициализировать Alembic**
+- [x] **Step 7: Инициализировать Alembic**
 
 ```bash
 cd backend
@@ -617,7 +617,7 @@ def downgrade() -> None:
     op.execute("DROP EXTENSION IF EXISTS pg_trgm")
 ```
 
-- [ ] **Step 8: Запустить тесты, линтеры и миграцию на чистой БД**
+- [x] **Step 8: Запустить тесты, линтеры и миграцию на чистой БД**
 
 ```bash
 cd backend
@@ -628,7 +628,7 @@ poetry run mypy app
 
 Ожидается: readiness-тесты PASS, миграция включает `pg_trgm`.
 
-- [ ] **Step 9: Коммит**
+- [x] **Step 9: Коммит**
 
 ```bash
 git add backend/app backend/alembic backend/alembic.ini backend/tests backend/pyproject.toml backend/poetry.lock
