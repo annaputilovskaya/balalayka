@@ -814,7 +814,7 @@ git commit -m "feat: add Jinja layout and Tailwind build"
 - Produces: снаружи доступен только nginx на `:80`.
 - Produces: `GET /`, `/docs`, `/healthz`, `/readyz` через nginx.
 
-- [ ] **Step 1: Создать Dockerfile**
+- [x] **Step 1: Создать Dockerfile**
 
 `backend/Dockerfile`:
 
@@ -827,11 +827,11 @@ git commit -m "feat: add Jinja layout and Tailwind build"
 - создать non-root пользователя;
 - `CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]`.
 
-- [ ] **Step 2: Создать `.dockerignore`**
+- [x] **Step 2: Создать `.dockerignore`**
 
 Исключить `.git`, `.venv`, `node_modules`, `__pycache__`, `.env`, `.env.*`, `*.log`, `docs`, `ai-docs`.
 
-- [ ] **Step 3: Создать `.env.example`**
+- [x] **Step 3: Создать `.env.example`**
 
 ```dotenv
 APP_ENV=dev
@@ -850,7 +850,7 @@ SESSION_COOKIE_SECURE=false
 
 `DATABASE_URL` в примере — для compose. Для локального backend в `backend/.env` заменить хосты на `localhost` и использовать те же логин/пароль. Compose всё равно переопределяет `DATABASE_URL` и `REDIS_URL` контейнерными значениями.
 
-- [ ] **Step 4: Создать compose**
+- [x] **Step 4: Создать compose**
 
 `deploy/docker-compose.yml`:
 
@@ -865,27 +865,29 @@ start_period: 10s
 ```
 
 - `redis`: `redis:7-alpine`, `--appendonly yes`, volume `redisdata`, healthcheck `redis-cli ping` с `interval: 5s`, `timeout: 3s`, `retries: 10`, `start_period: 5s`.
-- `minio`: `minio/minio:RELEASE.2024-10-13T13-34-11Z`, `command: server /data --console-address ":9001"`, `env_file: .env`, volume `miniodata`, healthcheck `curl -fsS http://127.0.0.1:9000/minio/health/live`.
-- `minio-init`: one-shot `minio/mc:RELEASE.2024-11-21T17-21-54Z`, `depends_on: minio: service_healthy`, `restart: "no"`, ждёт MinIO и создаёт бакеты `incoming-videos`, `media`, `raw-videos`:
+- `minio`: `bitnamilegacy/minio:2025.7.23-debian-12-r5`, `entrypoint: ["/opt/bitnami/minio/bin/minio"]`, `user: "0:0"`, `command: server /data --console-address ":9001"`, `env_file: .env`, volume `miniodata`, healthcheck `curl -fsS http://127.0.0.1:9000/minio/health/live`.
+- `minio-init`: one-shot из того же образа `bitnamilegacy/minio:2025.7.23-debian-12-r5`, `entrypoint: ["/bin/bash", "-c"]`, `depends_on: minio: service_healthy`, `restart: "no"`, ждёт MinIO и создаёт бакеты `incoming-videos`, `media`, `raw-videos`:
 
 ```yaml
-entrypoint: >
-  /bin/sh -c "
-  until mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD; do sleep 2; done;
-  mc mb --ignore-existing local/incoming-videos local/media local/raw-videos;
-  "
+entrypoint: ["/bin/bash", "-c"]
+command:
+  - >
+    until /opt/bitnami/minio-client/bin/mc alias set local http://minio:9000
+    "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"; do sleep 2; done;
+    /opt/bitnami/minio-client/bin/mc mb --ignore-existing
+    local/incoming-videos local/media local/raw-videos
 ```
 
-Перед коммитом обязательно проверить выбранные теги и наличие инструментов:
+Причина замены: официальные образы `minio/minio` и `minio/mc` больше не публичны (проверено 2026-11-07: `pull access denied`; `quay.io` и `ghcr.io` также недоступны). `bitnamilegacy/minio:2025.7.23-debian-12-r5` — архивный образ Bitnami с официальными бинарниками `minio` и `mc` и `curl`; тег закреплён, `latest` запрещён.
+
+Перед коммитом обязательно проверить выбранный тег и наличие инструментов:
 
 ```bash
-docker pull minio/minio:RELEASE.2024-10-13T13-34-11Z
-docker run --rm --entrypoint /bin/sh minio/minio:RELEASE.2024-10-13T13-34-11Z -c 'command -v curl; command -v wget; command -v sh'
-docker pull minio/mc:RELEASE.2024-11-21T17-21-54Z
-docker run --rm --entrypoint /bin/sh minio/mc:RELEASE.2024-11-21T17-21-54Z -c 'command -v sh; command -v mc'
+docker pull bitnamilegacy/minio:2025.7.23-debian-12-r5
+docker run --rm --entrypoint /bin/bash bitnamilegacy/minio:2025.7.23-debian-12-r5 -c 'command -v sh; command -v curl; command -v /opt/bitnami/minio/bin/minio; command -v /opt/bitnami/minio-client/bin/mc'
 ```
 
-Если тег недоступен или `curl`/`wget` отсутствует, заменить на проверенный release-тег и healthcheck-инструмент, зафиксировать это в compose. `latest` запрещён.
+Если тег недоступен или `curl`/`mc` отсутствует, заменить на проверенный release-тег и healthcheck-инструмент, зафиксировать это в compose. `latest` запрещён.
 
 Lifecycle и scoped-пользователь добавляются на этапе 2.
 
@@ -933,7 +935,7 @@ services:
 
 Dev-override не используется в production-командах и не должен попадать в деплой.
 
-- [ ] **Step 5: Создать nginx-конфиг**
+- [x] **Step 5: Создать nginx-конфиг**
 
 `deploy/nginx/default.conf`:
 
@@ -943,7 +945,7 @@ Dev-override не используется в production-командах и н�
 - `location /static/ { proxy_pass http://backend; }`;
 - `location /incoming-videos/ { proxy_pass http://minio:9000; proxy_set_header Host $http_host; client_max_body_size 500m; proxy_request_buffering off; }`.
 
-- [ ] **Step 6: Создать README-каркас**
+- [x] **Step 6: Создать README-каркас**
 
 README содержит:
 
@@ -970,7 +972,7 @@ docker compose up -d --wait
 - AI artifacts: экспорт сессии прикладывается к архиву, промпты в git не добавляются (ADR-016);
 - предупреждение: HTTP и демо-пароли только для проверки, не для production.
 
-- [ ] **Step 7: Проверить compose и smoke**
+- [x] **Step 7: Проверить compose и smoke**
 
 ```bash
 cp deploy/.env.example deploy/.env
@@ -986,7 +988,7 @@ curl -fsS http://localhost/ -o /dev/null
 
 На Windows использовать `curl.exe`. Ожидается: `migrate` и `minio-init` — `exited (0)`, долгоживущие сервисы healthy, `/readyz` возвращает `200` с `postgres` и `redis` в статусе `ok`, HTML главной содержит `БаЛаЛайка`. Если `up -d --wait` завершился ошибкой только из-за one-shot-сервисов, выполнить `docker compose up -d` и bounded-ожидание `http://localhost/healthz`; результат зафиксировать в README.
 
-- [ ] **Step 8: Коммит**
+- [x] **Step 8: Коммит**
 
 ```bash
 git add backend/Dockerfile .dockerignore deploy README.md
