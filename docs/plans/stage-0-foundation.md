@@ -1002,7 +1002,7 @@ git commit -m "chore: add compose, nginx and env template"
 **Files:**
 - Modify: `docs/ROADMAP.md`
 
-- [ ] **Step 1: Прогнать полную проверку**
+- [x] **Step 1: Прогнать полную проверку**
 
 ```bash
 cd backend
@@ -1021,7 +1021,7 @@ poetry run mypy app
 
 Ожидается: все тесты PASS, линтеры и mypy без ошибок.
 
-- [ ] **Step 2: Проверить миграцию на чистой БД**
+- [x] **Step 2: Проверить миграцию на чистой БД**
 
 Только для одноразовой stage 0 БД: `down -v` уничтожает volumes. Не выполнять при наличии данных.
 
@@ -1034,7 +1034,7 @@ docker compose run --rm migrate alembic current
 
 Ожидается: `alembic current` показывает ревизию `0001`.
 
-- [ ] **Step 3: Пройти smoke этапа 0**
+- [x] **Step 3: Пройти smoke этапа 0**
 
 ```bash
 curl -fsS http://localhost/healthz
@@ -1045,7 +1045,7 @@ curl -fsS http://localhost/docs -o /dev/null
 
 Ожидается: `/`, `/docs`, `/healthz`, `/readyz` отвечают `200`; `postgres` и `redis` — `ok`; HTML главной содержит `БаЛаЛайка`.
 
-- [ ] **Step 4: Smoke из чистого клона**
+- [x] **Step 4: Smoke из чистого клона**
 
 ```bash
 SMOKE_DIR="$(mktemp -d)"
@@ -1063,7 +1063,7 @@ docker compose down -v
 
 На Windows использовать `$env:TEMP` и `curl.exe`. Ожидается: чистая копия собирается без локальных артефактов, все endpoints отвечают `200`.
 
-- [ ] **Step 5: Проверить DoD**
+- [x] **Step 5: Проверить DoD**
 
 Из корня репозитория:
 
@@ -1097,13 +1097,13 @@ fi
 - `alembic current` показывает `0001`;
 - проверка логов завершается успешно: `SECRET_KEY`, паролей и `DATABASE_URL` с credentials нет.
 
-- [ ] **Step 6: Обновить ROADMAP**
+- [x] **Step 6: Обновить ROADMAP**
 
 - перевести этап 0 в статус `готово`;
 - зафиксировать, что worker, ARQ, MinIO-клиент и upload остаются на этапе 2;
 - не добавлять новые функции и не менять ADR.
 
-- [ ] **Step 7: Коммит**
+- [x] **Step 7: Коммит**
 
 ```bash
 git add docs/ROADMAP.md
